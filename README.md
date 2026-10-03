@@ -1,290 +1,310 @@
-# Purple Team — Agentic Security Orchestration, Detection & Digital Forensics
+Purple Team — Agentic Security Orchestration, Detection & Digital Forensics
+===========================================================================
 
-**Repository:** `purple-team-scc26`  
-**Recommended long name:** **Purple Team: Agentic Security Orchestration, Detection & Digital Forensics**  
-**Duration:** 10-week core, 12 weeks with stretch/handover  
-**Team structure:** two cooperating student teams, 3–5 students per team
+Welcome. This repository is one of the CHPC student engineering projects for the 2026 SCC follow-on programme. You will spend the first four weeks building the same small cloud-native research platform as the other teams, then use that platform for your team's project-specific experiment.
 
-## Project summary
+The project is intentionally ambitious, but the path is deliberately staged. **Do not try to understand every technology before you begin.** Build one layer, validate it, understand what it owns, then continue.
 
-This project gives “red versus blue” a deliberately different meaning. Two student teams jointly operate an authorised cyber range built from the same infrastructure and platform components used by the hybrid HPC–QC environment. One team begins as the **Adversary Emulation Cell** and the other as the **Detection & Response Cell**. Midway through the project they rotate roles so that every student must understand both offensive evidence generation and defensive detection/forensics.
+> [!IMPORTANT]
+> The objective is not to copy commands until something turns green. By the end, every team member should be able to explain the full platform at a useful high level, even though each person has a primary role.
 
-The point is not to reward clever exploitation in isolation. The point is to build an evidence-driven purple-team workflow in which controlled adversary actions produce observable signals, defenders turn those signals into detections and incident timelines, and Hermes/`agent-control-plane` helps analysts correlate and explain evidence without becoming an unrestricted administrator.
+# Project question
 
-The project integrates primarily with:
+> Can two isolated student teams run a repeatable red/blue exercise in which authorised activity is detectable, explainable and reconstructable from host, network, Kubernetes and agent evidence?
 
-- `infra-hpc-qc-k8s` for the isolated OpenStack/Kubernetes security lab, Wazuh, Suricata, Prometheus/Grafana, Cilium and network boundaries;
-- `quantum-platform` for authenticated administrator-facing views and future incident/task surfaces;
-- `agent-control-plane` for bounded, auditable agent tasks and persistent run/evidence history;
-- Hermes as the primary agent runtime/explanation layer.
+# Start here
 
-## Core question
+Work through the common platform weeks in order:
 
-> Can two student teams build a repeatable purple-team exercise in which every authorised adversary action is detectable, explainable and reconstructable from host, network, Kubernetes and agent-control-plane evidence?
+1. [Week 1 — OpenStack → Terraform → Ansible](week1/README.md)
+2. [Week 2 — Kubernetes Substrate & GitOps](week2/README.md)
+3. [Week 3 — Observability, Security & Quantum Platform](week3/README.md)
+4. [Week 4 — Agent Control Plane & Hermes](week4/README.md)
+5. **Week 5 — project-specific implementation**
+6. **Week 6 — technical journal article, poster and reproducibility rebuild**
+7. **Week 7 — consolidation, cleanup and upstream handover**
 
-## Learning outcomes
+The upstream implementation/reference repositories are:
 
-By completion, students should be able to:
+- [`nyameko/infra-hpc-qc-k8s`](https://github.com/nyameko/infra-hpc-qc-k8s) — OpenStack/Terraform, Ansible, Kubernetes, GitOps, storage, observability and security deployment;
+- [`nyameko/quantum-platform`](https://github.com/nyameko/quantum-platform) — Astro/Django/PostgreSQL user-facing platform;
+- [`nyameko/agent-control-plane`](https://github.com/nyameko/agent-control-plane) — bounded agent task API, persistent history and Hermes worker;
+- [`chpc-tech-eval/scc`](https://github.com/chpc-tech-eval/scc) — teaching/tutorial style and HPC learning lineage.
 
-- deploy and validate an isolated cloud/Kubernetes security range;
-- explain the difference between preventive controls, detection controls and forensic evidence;
-- operate Wazuh, Suricata and Prometheus/Grafana together rather than as unrelated dashboards;
-- design safe adversary-emulation scenarios with explicit scope and success criteria;
-- construct an incident timeline from multiple evidence sources;
-- write and test detections against known activity;
-- integrate a bounded Hermes analyst profile with read-only evidence sources;
-- measure detection and response performance;
-- document false positives, false negatives and evidence gaps;
-- conduct a blameless purple-team retrospective and improve the system.
+These repositories are active. Record the exact commit SHA you use each week. When a tested baseline is announced, keep the whole team on that baseline until instructed otherwise.
 
-## Safety and authorisation boundary
+# Programme cadence
 
-All adversary activity is confined to the project-owned range and explicitly approved scenarios. Students must not probe external systems, production systems, other teams' resources or services outside the assigned OpenStack projects/namespaces.
+The current plan is a **six-week core project** followed by **Week 7 consolidation**. Team captains should coordinate the Friday working session, tentatively **14:00–18:00**, through the programme Discord. The current expected infrastructure access window runs through **15 December 2026**; watch GitHub/Discord for any operational changes.
 
-The repository may contain scenario descriptions, detection rules, replay fixtures and synthetic evidence. It must not contain real credentials, production secrets or uncontrolled destructive payloads.
+Discord: https://discord.gg/PNMknPydJ
 
-Hermes is read/report by default. Any mutation capability introduced as a stretch objective must be a fixed, reviewed action behind explicit human approval and full audit logging.
+# What you will build
 
-## Two-team operating model
+The common platform is approximately:
 
-### Cell A — Adversary Emulation
+| Role | vCPU | RAM | Storage | Purpose |
+| --- | ---: | ---: | ---: | --- |
+| `edge-01` | 4 | 10 GiB | 50 GiB | WireGuard, Pi-hole/DNS, nftables, Wazuh Manager, Suricata |
+| `api-lb-01` | 2 | 4 GiB | 25 GiB | HAProxy and stable Kubernetes API endpoint |
+| `k8s-cp-01` | 4 | 8 GiB | 30 GiB | Kubernetes control plane |
+| `k8s-worker-01` | 8 | 16 GiB | 40 GiB | platform/workbench/project workloads |
+| `k8s-worker-02` | 8 | 16 GiB | 40 GiB | platform/workbench/project workloads |
+| **POC total** | **26** | **54 GiB** | **185 GiB** | excluding separately allocated GPU systems |
 
-Responsibilities during the first half:
+Your team may adjust the final design within the project quota, but every change needs a technical reason.
 
-- define approved attack hypotheses;
-- generate controlled host/network/application signals;
-- record exact start/stop times and expected observables;
-- maintain scenario manifests;
-- avoid destructive persistence or uncontrolled lateral movement;
-- hand defenders enough ground truth after the exercise to calculate detection quality.
-
-### Cell B — Detection & Response
-
-Responsibilities during the first half:
-
-- establish telemetry baselines;
-- validate Wazuh agents, Suricata sensors and Prometheus targets;
-- author detection/triage rules;
-- maintain incident case records and timelines;
-- measure `T_detect`, `T_identify`, `T_contain` and `T_recover` where meaningful;
-- record false positives and false negatives.
-
-### Rotation
-
-At the midpoint, the cells exchange roles. The second exercise must be materially different enough that students cannot merely replay memorised answers.
-
-## Architecture
+## Common architecture
 
 ```text
-                Isolated OpenStack project / cyber range
-                              │
-                  ┌───────────┴───────────┐
-                  │                       │
-               edge/security          Kubernetes
-                  │                       │
-       Suricata + Wazuh agent      workloads / decoys
-                  │                       │
-                  └──────────┬────────────┘
-                             │
-                     security telemetry
-          ┌──────────────────┼──────────────────┐
-          │                  │                  │
-       Wazuh              Suricata          Prometheus
-          │                  │                  │
-          └──────────────────┼──────────────────┘
-                             ▼
-                    evidence normalisation
-                             │
-                   agent-control-plane
-                   task/run/evidence ledger
-                             │
-                    bounded Hermes analyst
-                             │
-                 explanation / correlation
-                             │
-                  quantum-platform admin
+                              Your workstation
+                                    │
+                                    │ WireGuard / SSH
+                                    ▼
+                              ┌───────────┐
+                              │  edge-01  │
+                              │ VPN / DNS │
+                              │ security  │
+                              └─────┬─────┘
+                                    │
+                  ┌─────────────────┴──────────────────┐
+                  │                                    │
+                  ▼                                    ▼
+            ┌───────────┐                       ┌─────────────┐
+            │ api-lb-01 │                       │ Kubernetes  │
+            │  HAProxy  │                       │   cluster   │
+            └─────┬─────┘                       └──────┬──────┘
+                  │                                    │
+                  │ :6443                       ┌──────┴──────┐
+                  └────────────────────────────►│ k8s-cp-01  │
+                                               └──────┬──────┘
+                                                      │
+                                             ┌────────┴────────┐
+                                             ▼                 ▼
+                                      ┌─────────────┐   ┌─────────────┐
+                                      │k8s-worker-01│   │k8s-worker-02│
+                                      └─────────────┘   └─────────────┘
 ```
 
-## Scope
 
-### Must deliver
+A100 and H200 access is **separate** from the Sebowa OpenStack project. The normal design is for small services/agents in Kubernetes to call approved model endpoints remotely.
 
-1. Reproducible isolated range deployment based on `infra-hpc-qc-k8s` patterns.
-2. Wazuh and Suricata telemetry flowing into a documented analysis path.
-3. Prometheus/Grafana health/availability context alongside security telemetry.
-4. At least four approved adversary-emulation scenarios spanning at least two telemetry layers.
-5. Detection rules or queries for every scenario.
-6. A structured incident/evidence schema.
-7. A read-only Hermes analyst workflow that receives curated evidence, not arbitrary shell access.
-8. Persistent task/run/evidence history through `agent-control-plane` or a compatible project fixture.
-9. Metrics for detection rate, false positives/negatives and response timing.
-10. A full purple-team replay in which another student can reconstruct the event timeline from the repository and retained evidence.
+# Why the first four weeks are shared
 
-### Should deliver
+All four projects depend on the same engineering foundations. The common build teaches the control boundaries once:
 
-- Cilium flow/network-policy evidence for at least one scenario;
-- automated scenario reset and environment cleanup;
-- a small rule-test suite with fixture logs;
-- admin UI summary of incidents/tasks and Hermes explanations;
-- comparison of human-only triage versus Hermes-assisted triage.
+```text
+Terraform       → OpenStack infrastructure
+Ansible         → Linux host configuration/bootstrap
+kubeadm         → Kubernetes bootstrap
+Cilium          → Kubernetes networking/policy
+Cinder CSI      → Kubernetes persistent block storage
+Argo CD         → long-lived Kubernetes application state
+Sealed Secrets  → encrypted secret material in GitOps
+Traefik         → application ingress
+Prometheus      → metrics collection
+Grafana         → metrics visualisation
+Wazuh           → host/security event evidence
+Suricata        → network IDS evidence
+Quantum Platform→ user identity/product surface
+Agent Control Plane → bounded agent tasks/history/policy
+Hermes          → agent runtime/harness
+A100/H200 model server → inference
+```
 
-### Stretch
+If you do not know a term yet, that is expected. The weekly tutorials introduce it when you need it.
 
-- human-approved containment action such as quarantining a namespace/workload through a fixed control-plane capability;
-- ATT&CK-style mapping of scenarios;
-- replayable PCAP/log fixture library;
-- multi-agent specialist roles such as network analyst, host analyst and incident summariser.
+# Six-week core + Week 7 consolidation
 
-## Explicit non-goals
+| Week | Common goal | Exit condition |
+| --- | --- | --- |
+| 1 | OpenStack → Terraform → Ansible | five-node POC reproducibly deployed and bootstrapped |
+| 2 | Kubernetes substrate + GitOps | 1 CP + 2 workers, Cilium, Cinder, Argo, Sealed Secrets, Traefik/TLS |
+| 3 | Observability/security + Quantum Platform | Prometheus/Grafana, Wazuh/Suricata evidence and working browser login |
+| 4 | ACP + Hermes | portal → ACP → evidence → Hermes → remote model round trip |
+| 5 | Project specialisation | project-specific MVP demonstrated on the common platform |
+| 6 | Report + reproducibility | 2-page technical journal article, poster and tear-down/rebuild evidence |
+| 7 | Consolidation | cleanup, final fixes, documented handover and upstream-ready contributions |
 
-- unrestricted autonomous remediation;
-- generic remote shell tools exposed to Hermes;
-- attacking systems outside the range;
-- malware development or destructive payload engineering;
-- replacing Wazuh/Suricata with an LLM;
-- claiming the model is an authority on incident truth without underlying evidence.
+### Week 5 — Purple Team exercise
 
-## Proposed repository layout
+The Purple Team consists of **two independent teams**, Purple A and Purple B. Each team receives its own OpenStack workspace. One team begins as the authorised adversary-emulation cell while the other acts as detection/response, then the roles are reversed.
+
+Your Week 5 goal is to demonstrate a complete evidence loop:
+
+```text
+approved scenario
+      ↓
+controlled activity
+      ↓
+Wazuh + Suricata + platform telemetry
+      ↓
+incident timeline / evidence bundle
+      ↓
+Agent Control Plane task
+      ↓
+Hermes evidence-grounded explanation
+      ↓
+human review and report
+```
+
+Required Week 5 outcomes:
+
+- at least one instructor-approved scenario per role rotation;
+- fresh Wazuh and/or Suricata evidence tied to the scenario time window;
+- a short incident timeline that separates ground truth from detections;
+- an ACP/Hermes explanation based only on curated evidence;
+- evidence of at least one miss, false positive, ambiguity or operational limitation;
+- a role swap so both teams experience attacker and defender responsibilities.
+
+> [!CAUTION]
+> All adversary activity is restricted to the project-owned range and instructor-approved targets. Do not probe other teams, production infrastructure, public systems, or resources outside the assigned exercise scope.
+
+
+# Week 6 — report, poster and reproducibility
+
+Your final Week 6 assessment is **not** "our environment has been alive for six weeks." You must demonstrate that the project is reproducible.
+
+At minimum:
+
+1. preserve the required state/results and record the exact source/image revisions;
+2. tear down the disposable infrastructure using the documented method;
+3. recreate the common platform from your Terraform/Ansible/GitOps sources and protected environment inputs;
+4. rerun the core acceptance checks;
+5. rerun the project-specific MVP or a representative reproducibility test;
+6. record failures, manual exceptions and time-consuming steps honestly.
+
+You will prepare:
+
+- a **two-page technical journal-style article**;
+- a **project poster**;
+- a short live demonstration;
+- reproducibility evidence.
+
+The article/poster should answer: problem, architecture, method, evidence/results, limitations, lessons learned and future work.
+
+# Week 7 — consolidation
+
+Use the consolidation week to:
+
+- fix documentation discovered to be incomplete during the rebuild;
+- clean secrets/test credentials and stale resources;
+- turn useful project changes into clear commits/PRs;
+- identify improvements that belong upstream in `infra-hpc-qc-k8s`, `quantum-platform` or `agent-control-plane`;
+- freeze final results and architecture diagrams;
+- make the repository understandable to the next student who did not attend your meetings.
+
+# Team roles
+
+There are four students per team. Use the following primary ownership areas to parallelise the work:
+
+| Role | Primary responsibility |
+| --- | --- |
+| **Infrastructure deployment** | OpenStack, Terraform, networking, security groups, DNS/firewall design |
+| **Cloud automation** | Ansible, Kubernetes, Cilium, Cinder |
+| **CI/CD, telemetry & security** | Argo CD, CI, Prometheus/Grafana, Wazuh, Suricata |
+| **Frontend, agents & specialisation** | Astro/Quantum Platform, ACP, Hermes and project-specific implementation |
+
+These are **not silos**. Rotate ownership after major milestones and review one another's work. Any team member may be asked to explain any part of the final architecture.
+
+# Working method
+
+Use the same pattern every week:
+
+```text
+READ
+  ↓
+DESIGN
+  ↓
+DEPLOY
+  ↓
+VERIFY
+  ↓
+BREAK / OBSERVE
+  ↓
+FIX
+  ↓
+DOCUMENT
+  ↓
+COMMIT
+```
+
+A command completing without an error is not proof that the system works. Prefer end-to-end acceptance evidence.
+
+> [!TIP]
+> **Show the working system, not slides about the working system.** Screenshots and diagrams are useful evidence, but they do not replace a live command, request, query or reproducible run.
+
+# Git workflow
+
+Keep changes small and reviewable. A simple student flow is:
+
+```text
+feature/<short-topic>
+        ↓ Pull Request
+      main
+```
+
+Use issues for tasks/bugs and pull requests for reviewed changes. Do not store secrets in issue comments, Discord, screenshots or Git history.
+
+Before pushing:
+
+```bash
+git status
+git diff --cached
+```
+
+Commit messages should say what changed and why.
+
+# Secrets and safety
+
+Never commit:
+
+- OpenStack credentials/application-credential secrets;
+- private SSH or WireGuard keys;
+- kubeconfigs;
+- plaintext Kubernetes Secrets;
+- database passwords;
+- model API keys;
+- Discord bot tokens;
+- TLS private keys.
+
+Use the approved private-variable/Vault/Sealed Secret workflow described in the weekly guides.
+
+Project-specific work should be organised so the two teams can share common documentation without sharing credentials:
 
 ```text
 purple-team-scc26/
 ├── README.md
-├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── THREAT-MODEL.md
-│   ├── RULES-OF-ENGAGEMENT.md
-│   ├── EVIDENCE-MODEL.md
-│   └── RUNBOOK.md
+├── week1/ ... week4/
+├── teams/
+│   ├── purple-a/
+│   └── purple-b/
 ├── scenarios/
-│   ├── scenario-01/
-│   ├── scenario-02/
-│   ├── scenario-03/
-│   └── scenario-04/
 ├── detections/
-│   ├── wazuh/
-│   ├── suricata/
-│   └── prometheus/
-├── fixtures/
-│   ├── logs/
-│   └── expected/
-├── dashboards/
-├── agent/
-│   ├── prompts/
-│   ├── evidence-adapters/
-│   └── tests/
-├── scripts/
-├── tests/
-└── .github/workflows/
+├── evidence/
+└── reports/
 ```
 
-## Ten-week roadmap
+Do not commit the instructor's secret scenario instructions, credentials, private keys or unrestricted exploit material.
 
-### Week 1 — Range and rules of engagement
 
-- clone/read the owning platform repositories;
-- document topology, trust boundaries and telemetry sources;
-- write `RULES-OF-ENGAGEMENT.md`;
-- deploy the smallest isolated test environment;
-- verify no exercise traffic can escape the intended scope.
+# Final project deliverable
 
-**Exit:** agreed architecture + one reachable target + one Wazuh/Suricata observation.
+A reproducible purple-team exercise with scenario ground truth, Wazuh/Suricata detections, an incident timeline, ACP/Hermes evidence analysis and a documented role rotation.
 
-### Week 2 — Telemetry baseline
+# Getting help
 
-- validate Wazuh agent events;
-- validate Suricata network events;
-- validate Prometheus health context;
-- create a common timestamp/event envelope;
-- define evidence retention and redaction rules.
+Use your project repository for technical issues and decisions, and the programme Discord for collaborative teaching/discussion. When asking for help, include:
 
-**Exit:** one timeline that combines host, network and health evidence.
+```text
+what you expected
+what actually happened
+the exact command/request
+relevant error/log excerpt
+which layer you already checked
+source commit(s) in use
+```
 
-### Week 3 — Scenario 1 and detection tests
+Redact credentials and private infrastructure values.
 
-- adversary cell runs one low-risk approved scenario;
-- defender cell writes detection and triage notes;
-- capture ground truth and calculate detection latency;
-- convert evidence into automated test fixtures.
-
-**Exit:** first replayable scenario with expected detections.
-
-### Week 4 — Scenario 2 + agent analyst
-
-- add a second scenario on a different telemetry layer;
-- integrate a bounded Hermes profile;
-- Hermes receives curated evidence and returns explanation/correlation;
-- record task/run/evidence/output in the control-plane ledger.
-
-**Exit:** read-only agent-assisted incident analysis with persistent history.
-
-### Week 5 — Forensics and response
-
-- build incident timeline tooling;
-- test missing telemetry and corrupted/partial evidence;
-- document false positives/negatives;
-- run a tabletop containment decision without autonomous mutation.
-
-**Exit:** defensible incident report from retained evidence.
-
-### Week 6 — Role rotation
-
-Teams swap adversary/defender roles. Build Scenario 3 with different assumptions.
-
-**Exit:** new team demonstrates competence in the opposite role.
-
-### Week 7 — Cross-layer scenario
-
-Create Scenario 4 that crosses at least two of: host, network, Kubernetes/application, identity or agent task evidence.
-
-**Exit:** integrated purple-team exercise and frozen evidence schema.
-
-### Week 8 — Reliability and automation
-
-- one-command lab reset where practical;
-- detection regression tests;
-- dashboards and runbooks;
-- recovery from telemetry component failure.
-
-### Week 9 — Staging exercise
-
-- freeze `stag`;
-- run the entire scenario suite from documented instructions;
-- a third party or supervisor follows the runbook;
-- record all defects as issues.
-
-### Week 10 — Final exercise and release
-
-Live exercise, incident reconstruction, metrics review, lessons learned, `main` release and upstream PR/design proposals.
-
-### Weeks 11–12 — Stretch
-
-Human-approved containment capability, improved agent specialisation, additional scenario fixtures and upstream hardening.
-
-## Metrics
-
-At minimum record:
-
-- scenario detection rate;
-- false-positive count/rate;
-- false-negative count/rate;
-- `T_detect` — event to first detection;
-- `T_identify` — detection to correct interpretation;
-- `T_contain` — when a containment decision/action is part of the exercise;
-- `T_recover` — when recovery is exercised;
-- agent evidence coverage — percentage of statements in the generated summary traceable to supplied evidence;
-- analyst correction count — material corrections humans make to the agent output.
-
-Do not optimise solely for low timings. A fast but incorrect classification is worse than a slower, evidence-grounded result.
-
-## Acceptance test
-
-The final demonstration should begin with a clean/reproducibly restored range. The adversary cell executes an approved scenario unknown in detail to the active defenders. The defenders must detect, triage and reconstruct it using the platform telemetry. Hermes may assist by explaining evidence but may not receive unrestricted administrative credentials. The team must show the full event/evidence/task history and explain what the system missed as well as what it detected.
-
-## Upstream contribution targets
-
-Potential mature contributions belong in:
-
-- `infra-hpc-qc-k8s`: Wazuh/Suricata deployment, dashboards, safe telemetry adapters, lab isolation improvements;
-- `agent-control-plane`: bounded diagnostic/evidence adapters and audit schema improvements;
-- `quantum-platform`: admin incident/task-history views;
-- `chpc-tech-eval/scc`: carefully sanitised security-observability tutorial material after the exercise.
+Most importantly: **Keep Calm and Carry On.** The purpose is to learn how the layers fit together, not to already know them on day one.
