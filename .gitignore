@@ -1,0 +1,41 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# OpenStack credentials
+clouds.yaml
+secure.yaml
+*openrc*.sh
+app-cred-*
+
+# Keys and certificates
+id_*
+!id_*.pub
+*.pem
+*.key
+*.privkey
+wg*.conf
+
+# Ansible private data
+infrastructure/ansible/inventories/private/
+.vault_pass*
+*.retry
+
+# Kubernetes (week 2 stuff so can add more if needed later)
+kubeconfig
+*.kubeconfig
+
+# --- macOS ---
+.DS_Store
