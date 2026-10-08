@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars (git-ignored) and fill in real values.
+# Real values are shared privately within the team, never committed.
+cloud                 = "openstack"
+name_prefix           = "purple-teama"
+external_network_name = "<EXTERNAL_NETWORK_NAME>"
+mgmt_cidr             = "<MGMT_CIDR>"
+k8s_cidr              = "<K8S_CIDR>"
+vpn_cidr              = "<WG_CIDR>"
+dns_nameservers       = ["<DNS_1>", "<DNS_2>"]
