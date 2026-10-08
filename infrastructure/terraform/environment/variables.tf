@@ -46,3 +46,23 @@ variable "wireguard_port" {
   type        = number
   default     = 51820
 }
+
+variable "image_id" {
+  description = "Rocky 9 image ID (from openstack image list). Real value only in private terraform.tfvars."
+  type        = string
+}
+
+variable "flavor_ids" {
+  description = "Flavor IDs per role (IDs, not names - see week1 README step 3)."
+  type = object({
+    edge          = string
+    api_lb        = string
+    control_plane = string
+    worker        = string
+  })
+}
+
+variable "ssh_public_keys" {
+  description = "Public SSH keys installed at first boot. Further team keys are managed by Ansible."
+  type        = list(string)
+}

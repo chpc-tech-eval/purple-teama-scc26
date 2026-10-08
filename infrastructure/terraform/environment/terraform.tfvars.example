@@ -8,3 +8,11 @@ k8s_cidr              = "<K8S_CIDR>"
 vpn_cidr              = "<WG_CIDR>"
 dns_nameservers       = ["<DNS_1>", "<DNS_2>"]
 bootstrap_ssh_cidrs   = ["<TEAM_MEMBER_PUBLIC_IP>/32"]
+image_id              = "<ROCKY_9_IMAGE_ID>"
+flavor_ids = {
+  edge          = "<FLAVOR_ID>"
+  api_lb        = "<FLAVOR_ID>"
+  control_plane = "<FLAVOR_ID>"
+  worker        = "<FLAVOR_ID>"
+}
+ssh_public_keys       = ["<ssh-ed25519 AAAA... name>"]
