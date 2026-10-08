@@ -35,3 +35,14 @@ variable "dns_nameservers" {
   type        = list(string)
   default     = []
 }
+
+variable "bootstrap_ssh_cidrs" {
+  description = "TEMPORARY public SSH sources for edge-01 (e.g. team members' /32s). Set to [] after WireGuard is proven."
+  type        = list(string)
+}
+
+variable "wireguard_port" {
+  description = "UDP port WireGuard listens on at edge-01."
+  type        = number
+  default     = 51820
+}

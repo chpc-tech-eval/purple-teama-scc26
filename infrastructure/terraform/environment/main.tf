@@ -17,3 +17,12 @@ module "network" {
   vpn_gateway_ip        = local.edge_mgmt_ip
   dns_nameservers       = var.dns_nameservers
 }
+
+module "security" {
+  source = "../modules/security"
+
+  name_prefix         = var.name_prefix
+  internal_cidrs      = [var.mgmt_cidr, var.k8s_cidr, var.vpn_cidr]
+  bootstrap_ssh_cidrs = var.bootstrap_ssh_cidrs
+  wireguard_port      = var.wireguard_port
+}

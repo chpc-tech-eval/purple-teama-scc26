@@ -7,3 +7,4 @@ mgmt_cidr             = "<MGMT_CIDR>"
 k8s_cidr              = "<K8S_CIDR>"
 vpn_cidr              = "<WG_CIDR>"
 dns_nameservers       = ["<DNS_1>", "<DNS_2>"]
+bootstrap_ssh_cidrs   = ["<TEAM_MEMBER_PUBLIC_IP>/32"]
