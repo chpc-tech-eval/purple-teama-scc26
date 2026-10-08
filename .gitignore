@@ -39,3 +39,8 @@ kubeconfig
 
 # --- macOS ---
 .DS_Store
+
+terraform.tfvars
+*.auto.tfvars
+*.crt.private
+secrets-private/
