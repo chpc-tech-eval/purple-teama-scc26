@@ -1,0 +1,5 @@
+wireguard_server_address: "<edge-vpn-ip>/<vpn-prefix>"
+wireguard_peers:
+  - name: "<teammate-name>"
+    public_key: "<wireguard-public-key>"
+    address: "<teammate-vpn-ip>/32"

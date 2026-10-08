@@ -1,0 +1,58 @@
+- name: Check required WireGuard variables are set
+  ansible.builtin.assert:
+    that:
+      - wireguard_server_address is defined
+      - wireguard_peers is defined
+      - wireguard_peers | length > 0
+    fail_msg: "Set wireguard_server_address and wireguard_peers in private group_vars/edge_nodes.yml"
+
+- name: Install WireGuard tools
+  ansible.builtin.dnf:
+    name: wireguard-tools
+    state: present
+
+- name: Enable IPv4 forwarding (edge routes VPN clients to private networks)
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_file: /etc/sysctl.d/90-edge-forwarding.conf
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: Create WireGuard directory (root only)
+  ansible.builtin.file:
+    path: "{{ wireguard_key_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Generate server private key on edge-01 (only if missing; it never leaves this host)
+  ansible.builtin.shell: "umask 077 && wg genkey > {{ wireguard_key_dir }}/server.key"
+  args:
+    creates: "{{ wireguard_key_dir }}/server.key"
+
+- name: Derive server public key
+  ansible.builtin.shell: "wg pubkey < {{ wireguard_key_dir }}/server.key"
+  register: wireguard_server_pubkey
+  changed_when: false
+
+- name: Write WireGuard interface config (contains no private key)
+  ansible.builtin.template:
+    src: wg0.conf.j2
+    dest: "{{ wireguard_key_dir }}/{{ wireguard_interface }}.conf"
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Restart WireGuard
+
+- name: Enable and start WireGuard
+  ansible.builtin.service:
+    name: "wg-quick@{{ wireguard_interface }}"
+    state: started
+    enabled: true
+
+- name: Show server public key (safe to share; needed in client configs)
+  ansible.builtin.debug:
+    msg: "edge-01 WireGuard public key: {{ wireguard_server_pubkey.stdout }}"

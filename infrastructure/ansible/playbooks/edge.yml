@@ -1,0 +1,7 @@
+# Week 1 edge subset (week1 README step 20). Wazuh/Suricata arrive in Week 3.
+- name: Configure the Week-1 edge subset
+  hosts: edge_nodes
+  become: true
+  roles:
+    - role: wireguard
+      tags: [wireguard]
