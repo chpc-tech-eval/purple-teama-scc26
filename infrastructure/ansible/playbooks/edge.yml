@@ -5,3 +5,5 @@
   roles:
     - role: wireguard
       tags: [wireguard]
+    - role: pihole
+      tags: [pihole]

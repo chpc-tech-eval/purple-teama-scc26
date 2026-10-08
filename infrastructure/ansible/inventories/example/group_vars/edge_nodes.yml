@@ -3,3 +3,10 @@ wireguard_peers:
   - name: "<teammate-name>"
     public_key: "<wireguard-public-key>"
     address: "<teammate-vpn-ip>/32"
+pihole_web_password: "<random - generate with: openssl rand -base64 24>"
+pihole_local_records:
+  - "<edge-mgmt-ip> edge-01"
+  - "<api-lb-private-ip> api-lb-01"
+  - "<cp-private-ip> k8s-cp-01"
+  - "<worker1-private-ip> k8s-worker-01"
+  - "<worker2-private-ip> k8s-worker-02"
