@@ -1,0 +1,2 @@
+haproxy_api_port: 6443
+haproxy_backend_group: control_plane   # inventory group whose hosts are the API backends
