@@ -1,0 +1,15 @@
+== bootstrap.yml ==
+PLAY RECAP *********************************************************************
+api-lb-01                  : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+edge-01                    : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+k8s-cp-01                  : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+k8s-worker-01              : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+k8s-worker-02              : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+== edge.yml ==
+PLAY RECAP *********************************************************************
+edge-01                    : ok=24   changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0
+
+== api-lb.yml ==
+PLAY RECAP *********************************************************************
+api-lb-01                  : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0

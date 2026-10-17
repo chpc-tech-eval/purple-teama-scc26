@@ -1,0 +1,2 @@
+team_ssh_public_keys:
+  - "<ssh-ed25519 AAAA... teammate-name>"

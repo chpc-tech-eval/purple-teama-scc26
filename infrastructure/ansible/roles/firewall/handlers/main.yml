@@ -1,0 +1,5 @@
+- name: Reload edge firewall
+  ansible.builtin.systemd_service:
+    name: edge-firewall
+    state: reloaded
+    daemon_reload: true

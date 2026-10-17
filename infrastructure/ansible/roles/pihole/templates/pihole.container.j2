@@ -1,0 +1,21 @@
+# Managed by Ansible - Podman Quadlet unit for Pi-hole (team DNS on edge-01)
+[Unit]
+Description=Pi-hole DNS for the Week-1 team networks
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+ContainerName=pihole
+Image={{ pihole_image }}
+EnvironmentFile={{ pihole_env_dir }}/pihole.env
+Volume={{ pihole_data_dir }}/etc-pihole:/etc/pihole:Z
+PublishPort=53:53/tcp
+PublishPort=53:53/udp
+PublishPort={{ pihole_web_port }}:80/tcp
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target

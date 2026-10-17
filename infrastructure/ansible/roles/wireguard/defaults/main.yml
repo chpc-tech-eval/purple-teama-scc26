@@ -1,0 +1,6 @@
+wireguard_interface: wg0
+wireguard_port: 51820
+wireguard_key_dir: /etc/wireguard
+# Required, set in private inventory group_vars (never committed):
+#   wireguard_server_address: "<edge-vpn-ip>/<prefix>"
+#   wireguard_peers: [{ name, public_key, address }]

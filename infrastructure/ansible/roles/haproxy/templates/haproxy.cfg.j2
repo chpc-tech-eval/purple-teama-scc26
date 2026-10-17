@@ -1,0 +1,26 @@
+# Managed by Ansible - stable Kubernetes API endpoint (week1 README step 23).
+global
+    log /dev/log local0 info notice
+    maxconn 4000
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    mode tcp
+    log global
+    option tcplog
+    timeout connect 5s
+    timeout client 1h
+    timeout server 1h
+
+frontend k8s_api
+    bind *:{{ haproxy_api_port }}
+    default_backend k8s_control_plane
+
+backend k8s_control_plane
+    balance roundrobin
+    option tcp-check
+{% for host in groups[haproxy_backend_group] %}
+    server {{ host }} {{ hostvars[host].ansible_host }}:{{ haproxy_api_port }} check inter 5s fall 3 rise 2
+{% endfor %}

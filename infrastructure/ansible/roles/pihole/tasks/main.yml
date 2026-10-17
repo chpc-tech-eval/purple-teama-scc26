@@ -1,0 +1,62 @@
+- name: Check required Pi-hole variables are set
+  ansible.builtin.assert:
+    that:
+      - pihole_web_password is defined
+      - pihole_local_records is defined
+      - pihole_local_records | length > 0
+    fail_msg: "Set pihole_web_password and pihole_local_records in private group_vars/edge_nodes.yml"
+
+- name: Install Podman and DNS test tools
+  ansible.builtin.dnf:
+    name:
+      - podman
+      - bind-utils
+    state: present
+
+- name: Create Pi-hole data directory
+  ansible.builtin.file:
+    path: "{{ pihole_data_dir }}/etc-pihole"
+    state: directory
+
+- name: Create Pi-hole environment directory (root only)
+  ansible.builtin.file:
+    path: "{{ pihole_env_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Check whether the pinned image is already present
+  ansible.builtin.command: "podman image exists {{ pihole_image }}"
+  register: pihole_image_check
+  failed_when: false
+  changed_when: false
+
+- name: Pull the pinned Pi-hole image (fully qualified registry path)
+  ansible.builtin.command: "podman pull {{ pihole_image }}"
+  when: pihole_image_check.rc != 0
+
+- name: Write Pi-hole environment file (contains the admin password)
+  ansible.builtin.template:
+    src: pihole.env.j2
+    dest: "{{ pihole_env_dir }}/pihole.env"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  notify: Restart Pi-hole
+
+- name: Write Quadlet unit so systemd manages the container
+  ansible.builtin.template:
+    src: pihole.container.j2
+    dest: /etc/containers/systemd/pihole.container
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Pi-hole
+
+- name: Start Pi-hole
+  ansible.builtin.systemd_service:
+    name: pihole
+    state: started
+    daemon_reload: true

@@ -1,0 +1,14 @@
+# Managed by Ansible - do not edit by hand.
+# The private key is loaded from {{ wireguard_key_dir }}/server.key and is never written here.
+[Interface]
+Address = {{ wireguard_server_address }}
+ListenPort = {{ wireguard_port }}
+PostUp = wg set %i private-key {{ wireguard_key_dir }}/server.key
+
+{% for peer in wireguard_peers %}
+[Peer]
+# {{ peer.name }}
+PublicKey = {{ peer.public_key }}
+AllowedIPs = {{ peer.address }}
+
+{% endfor %}
