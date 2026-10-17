@@ -10,3 +10,5 @@ pihole_local_records:
   - "<cp-private-ip> k8s-cp-01"
   - "<worker1-private-ip> k8s-worker-01"
   - "<worker2-private-ip> k8s-worker-02"
+edge_fw_private_cidrs: ["<mgmt-cidr>", "<k8s-cidr>", "<vpn-cidr>"]
+edge_fw_allow_public_ssh: true   # bootstrap only - set false at README step 22

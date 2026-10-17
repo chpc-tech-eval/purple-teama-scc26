@@ -7,3 +7,5 @@
       tags: [wireguard]
     - role: pihole
       tags: [pihole]
+    - role: firewall
+      tags: [firewall]
