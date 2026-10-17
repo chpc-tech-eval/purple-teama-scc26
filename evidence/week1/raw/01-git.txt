@@ -1,0 +1,15 @@
+HEAD: bd823cca94a356dd6cae658be1c06d8cc107e4eb
+
+bd823cc week1: added HAProxy APO endpoint role, example inv for vpn and bootstrap mode
+f16c5a9 week1: add efge nftables firewall role(own tabel, leaces podman rules intact)
+6e97f3b week1: subnet dns set by terraform
+cecbe61 week1: add edge pi hole role
+d0ddf90 week1: added ege wireguard role (server key made on edge-01, peers from private vars)
+8f82d32 week1: added boostrap playbook (common and admin access roles)
+f040bc0 week1: added example ansible inventory (readme groups, bootsrap from edfe-01)
+f017b0e week1: added terraform compute models(5 nodes, ip ports now fixed, edge floating ip)
+3be7599 week1: added terrafrom security module(edge bootstrap ssh and wiregaurd, internal trust)
+5fc2acb week1: add Terraform network module (2 private networks,rotuer, VPN and return route)
+3a767d4 Week1: Terraform env skeleton with Openstack prvider pinned
+66a9865 ipdated .gitignore
+1ce0032 added .gitignore

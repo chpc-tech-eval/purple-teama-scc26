@@ -1,0 +1,28 @@
+== quota ==
+| cores                 |     50 |
+| ram                   | 102400 |
+| floating_ips          |      1 |
+| gigabytes             |    900 |
+
+== servers ==
+k8s-cp-01 ACTIVE {'purple-teama-k8s': ['<k8s-net>.11']} Rocky 9 C4.small
+api-lb-01 ACTIVE {'purple-teama-k8s': ['<k8s-net>.10']} Rocky 9 C2.tiny
+k8s-worker-02 ACTIVE {'purple-teama-k8s': ['<k8s-net>.22']} Rocky 9 C8.medium
+k8s-worker-01 ACTIVE {'purple-teama-k8s': ['<k8s-net>.21']} Rocky 9 C8.medium
+edge-01 ACTIVE {'purple-teama-mgmt': ['<mgmt-net>.10', '<edge-floating-ip>']} Rocky 9 C6.small
+
+== floating IPs ==
+<edge-floating-ip> <mgmt-net>.10
+
+== routers ==
+purple-teama-router ACTIVE True
+
+== security groups ==
+purple-teama-internal
+purple-teama-edge
+default
+
+== edge SG rules ==
+None 0.0.0.0/0  egress
+udp 0.0.0.0/0 51820:51820 ingress
+None ::/0  egress

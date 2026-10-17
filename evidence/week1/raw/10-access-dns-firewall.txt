@@ -1,0 +1,29 @@
+== WireGuard (workstation) ==
+interface: utun6
+  endpoint: <edge-floating-ip>:51820
+  allowed ips: <mgmt-net>.0/24, <k8s-net>.0/24
+  latest handshake: 1 minute, 54 seconds ago
+
+== private SSH over VPN (README step 22) ==
+k8s-cp-01
+k8s-worker-01
+
+== public SSH to edge floating IP (must time out) ==
+ssh: connect to host <edge-floating-ip> port 22: Operation timed out
+
+== DNS via Pi-hole (README step 21, from k8s-cp-01) ==
+nameserver <mgmt-net>.10
+<mgmt-net>.10     edge-01
+
+== edge firewall input chain ==
+table inet edge_filter {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		ct state invalid drop
+		ct state established,related accept
+		iifname "lo" accept
+		meta l4proto { icmp, ipv6-icmp } accept
+		udp dport 51820 accept comment "WireGuard"
+		ip saddr @team_ranges tcp dport 22 accept comment "SSH team only"
+	}
+}
