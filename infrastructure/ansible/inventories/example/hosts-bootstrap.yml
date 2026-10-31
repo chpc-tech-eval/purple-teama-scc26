@@ -1,0 +1,32 @@
+# Template only. Copy to inventories/private/hosts.yml (git-ignored) and fill in
+# real values from: terraform -chdir=../terraform/environment output
+all:
+  vars:
+    ansible_user: <bootstrap-or-admin-user>
+    ansible_ssh_private_key_file: <path-to-your-private-key>
+    ansible_python_interpreter: auto_silent
+  children:
+    edge_nodes:
+      hosts:
+        edge-01:
+          ansible_host: <edge-floating-ip>
+    via_edge:
+      vars:
+        ansible_ssh_common_args: >-
+          -o ProxyCommand="ssh -W %h:%p -i <path-to-your-private-key> -o IdentitiesOnly=yes <user>@<edge-floating-ip>"
+          -o StrictHostKeyChecking=accept-new
+      children:
+        api_lb:
+          hosts:
+            api-lb-01:
+              ansible_host: <api-lb-private-ip>
+        control_plane:
+          hosts:
+            k8s-cp-01:
+              ansible_host: <cp-private-ip>
+        workers:
+          hosts:
+            k8s-worker-01:
+              ansible_host: <worker1-private-ip>
+            k8s-worker-02:
+              ansible_host: <worker2-private-ip>

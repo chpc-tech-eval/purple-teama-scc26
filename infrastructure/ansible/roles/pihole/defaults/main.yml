@@ -1,0 +1,12 @@
+# Fully qualified + pinned (week1 README step 21: explicit registries for system-launched images)
+pihole_image: docker.io/pihole/pihole:2026.07.2
+pihole_data_dir: /var/lib/pihole
+pihole_env_dir: /etc/pihole-env
+pihole_web_port: 8080
+pihole_timezone: Africa/Johannesburg
+pihole_upstreams:
+  - 1.1.1.1
+  - 8.8.8.8
+# Required, set in private inventory group_vars (never committed):
+#   pihole_web_password: "<random>"
+#   pihole_local_records: ["<ip> <hostname>", ...]

@@ -1,0 +1,8 @@
+- name: Install team members' SSH public keys
+  ansible.posix.authorized_key:
+    user: "{{ admin_user }}"
+    key: "{{ item }}"
+    state: present
+  loop: "{{ team_ssh_public_keys }}"
+  loop_control:
+    label: "{{ item.split(' ')[-1] }}"

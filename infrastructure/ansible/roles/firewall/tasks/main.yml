@@ -1,0 +1,42 @@
+- name: Check required firewall variables are set
+  ansible.builtin.assert:
+    that:
+      - edge_fw_private_cidrs is defined
+      - edge_fw_private_cidrs | length > 0
+    fail_msg: "Set edge_fw_private_cidrs in private group_vars/edge_nodes.yml"
+
+- name: Install nftables
+  ansible.builtin.dnf:
+    name: nftables
+    state: present
+
+- name: Keep the stock nftables service disabled (it flushes ALL rules, including Podman's)
+  ansible.builtin.systemd_service:
+    name: nftables
+    enabled: false
+
+- name: Write edge firewall rules (syntax-checked before install)
+  ansible.builtin.template:
+    src: edge-filter.nft.j2
+    dest: /etc/nftables/edge-filter.nft
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/nft -c -f %s
+  notify: Reload edge firewall
+
+- name: Write the edge firewall service unit
+  ansible.builtin.template:
+    src: edge-firewall.service.j2
+    dest: /etc/systemd/system/edge-firewall.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload edge firewall
+
+- name: Enable and start the edge firewall
+  ansible.builtin.systemd_service:
+    name: edge-firewall
+    enabled: true
+    state: started
+    daemon_reload: true

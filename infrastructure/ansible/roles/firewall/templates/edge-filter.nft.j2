@@ -1,0 +1,40 @@
+# Managed by Ansible - edge-01 host firewall (week1 README step 20).
+# Replaces only its own table; Podman's rules for Pi-hole stay untouched.
+table inet edge_filter
+delete table inet edge_filter
+
+table inet edge_filter {
+  set team_ranges {
+    type ipv4_addr
+    flags interval
+    elements = { {{ edge_fw_private_cidrs | join(', ') }} }
+  }
+
+  chain input {
+    type filter hook input priority filter; policy drop;
+    ct state invalid drop
+    ct state established,related accept
+    iifname "lo" accept
+    meta l4proto { icmp, ipv6-icmp } accept
+    udp dport {{ edge_fw_wireguard_port }} accept comment "WireGuard"
+{% if edge_fw_allow_public_ssh %}
+    tcp dport 22 accept comment "TEMP public SSH"
+{% else %}
+    ip saddr @team_ranges tcp dport 22 accept comment "SSH team only"
+{% endif %}
+  }
+
+  chain forward {
+    type filter hook forward priority filter; policy drop;
+    ct state invalid drop
+    ct state established,related accept
+    iifname "{{ edge_fw_wireguard_interface }}" ip daddr @team_ranges accept comment "VPN to team nets"
+    iifname "{{ edge_fw_podman_bridge }}" accept comment "Pi-hole upstream"
+    oifname "{{ edge_fw_podman_bridge }}" ip saddr @team_ranges meta l4proto { tcp, udp } th dport 53 accept comment "DNS"
+    oifname "{{ edge_fw_podman_bridge }}" ip saddr @team_ranges tcp dport 80 accept comment "Pi-hole UI"
+  }
+
+  chain output {
+    type filter hook output priority filter; policy accept;
+  }
+}

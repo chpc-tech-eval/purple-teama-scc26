@@ -1,0 +1,7 @@
+edge_fw_wireguard_port: 51820
+edge_fw_wireguard_interface: wg0
+edge_fw_podman_bridge: podman0
+# Secure default: SSH only from team ranges. Set true only during bootstrap (week1 README step 22).
+edge_fw_allow_public_ssh: false
+# Required, set in private group_vars (never committed):
+#   edge_fw_private_cidrs: ["<mgmt-cidr>", "<k8s-cidr>", "<vpn-cidr>"]

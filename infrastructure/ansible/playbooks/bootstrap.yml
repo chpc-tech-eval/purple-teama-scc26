@@ -1,0 +1,7 @@
+# Week 1 base bootstrap for all five hosts (week1 README step 18).
+- name: Bootstrap all Week-1 hosts
+  hosts: all
+  become: true
+  roles:
+    - common
+    - admin_access

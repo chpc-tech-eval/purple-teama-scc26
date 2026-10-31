@@ -1,0 +1,8 @@
+common_timezone: Africa/Johannesburg
+common_packages:
+  - chrony
+  - curl
+  - jq
+  - tar
+  - vim-enhanced
+  - bash-completion

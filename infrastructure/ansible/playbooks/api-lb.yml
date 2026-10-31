@@ -1,0 +1,6 @@
+# Week 1: stable Kubernetes API endpoint on api-lb-01 (week1 README steps 23-24).
+- name: Configure HAProxy on the API load balancer
+  hosts: api_lb
+  become: true
+  roles:
+    - haproxy

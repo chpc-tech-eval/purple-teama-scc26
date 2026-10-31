@@ -1,0 +1,38 @@
+- name: Stop cloud-init resetting the hostname on reboot
+  ansible.builtin.copy:
+    dest: /etc/cloud/cloud.cfg.d/99-preserve-hostname.cfg
+    content: "preserve_hostname: true\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Set hostname to the inventory name
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Install base packages
+  ansible.builtin.dnf:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ common_timezone }}"
+
+- name: Ensure chronyd is enabled and running
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true
+
+- name: Let NetworkManager write DNS from DHCP (overrides cloud-init's dns=none; subnet DNS is set by Terraform)
+  ansible.builtin.copy:
+    dest: /etc/NetworkManager/conf.d/99-zz-use-dhcp-dns.conf
+    content: |
+      # Managed by Ansible. Sorts after cloud-init's file, so this setting wins.
+      [main]
+      dns=default
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart NetworkManager

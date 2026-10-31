@@ -1,0 +1,15 @@
+# Managed by Ansible - loads ONLY the edge_filter table; Podman's own rules are untouched.
+[Unit]
+Description=edge-01 host firewall (nftables table inet edge_filter)
+After=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/nftables/edge-filter.nft
+ExecReload=/usr/sbin/nft -f /etc/nftables/edge-filter.nft
+ExecStop=/usr/sbin/nft delete table inet edge_filter
+
+[Install]
+WantedBy=multi-user.target
